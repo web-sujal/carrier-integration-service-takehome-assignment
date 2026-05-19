@@ -13,6 +13,7 @@ export class ApiError extends Error {
   readonly code?: string;
   readonly details?: unknown;
 
+  /** @param statusCode Prefer {@link ./constants.StatusCodes `StatusCodes`} over raw numbers. */
   constructor(
     statusCode: number,
     message: string,
