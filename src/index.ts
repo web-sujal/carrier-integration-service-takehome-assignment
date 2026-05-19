@@ -9,6 +9,7 @@ import { config } from './config/config';
 import { errorHandler } from './middlewares/error.middleware';
 import { v1Router } from './routes/v1/index';
 import { sendData } from './utils/apiSuccess';
+import { StatusCodes } from './utils/constants';
 
 const app = express();
 
@@ -38,6 +39,11 @@ app.use(express.json());
 
 app.get('/health', (_req, res) => {
   return sendData(res, { status: 'ok', message: 'Server is running' });
+});
+
+// Handle favicon requests
+app.get('/favicon.ico', (_req, res) => {
+  return sendData(res, undefined, StatusCodes.NO_CONTENT);
 });
 
 app.use('/api/v1', v1Router);
