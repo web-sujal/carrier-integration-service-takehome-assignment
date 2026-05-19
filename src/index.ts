@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import { config } from './config/config';
 import { errorHandler } from './middlewares/error.middleware';
 import { v1Router } from './routes/v1/index';
+import { sendData } from './utils/apiSuccess';
 
 const app = express();
 
@@ -35,8 +36,8 @@ app.use(
 
 app.use(express.json());
 
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Server is running' });
+app.get('/health', (_req, res) => {
+  return sendData(res, { status: 'ok', message: 'Server is running' });
 });
 
 app.use('/api/v1', v1Router);
