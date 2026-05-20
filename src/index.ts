@@ -8,6 +8,7 @@ import morgan from "morgan";
 import { config } from "./config/config";
 import { errorHandler } from "./middlewares/error.middleware";
 import { v1Router } from "./routes/v1";
+import { createUpsShippingRateStubRouter } from "./routes/stub/upsStub.route";
 import { sendData } from "./utils/apiSuccess";
 import { StatusCodes } from "./utils/constants";
 
@@ -47,6 +48,9 @@ app.get("/favicon.ico", (_req, res) => {
 });
 
 app.use("/api/v1", v1Router);
+
+/** In-process UPS Rating mock; default target of `config.upsStub.rateUrl`. */
+app.use("/internal/stub/ups", createUpsShippingRateStubRouter());
 
 app.use(errorHandler);
 
