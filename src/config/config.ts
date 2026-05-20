@@ -32,8 +32,8 @@ export const config = {
   cors: {
     origins: env.CORS_ORIGINS
       ? env.CORS_ORIGINS.split(",")
-          .map((s) => s.trim())
-          .filter(Boolean)
+        .map((s) => s.trim())
+        .filter(Boolean)
       : [],
   },
 } as const;

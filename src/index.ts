@@ -7,7 +7,7 @@ import morgan from "morgan";
 
 import { config } from "./config/config";
 import { errorHandler } from "./middlewares/error.middleware";
-import { v1Router } from "./routes/v1/index";
+import { v1Router } from "./routes/v1";
 import { sendData } from "./utils/apiSuccess";
 import { StatusCodes } from "./utils/constants";
 
