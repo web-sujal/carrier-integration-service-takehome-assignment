@@ -17,10 +17,10 @@ export class ApiError extends Error {
   constructor(
     statusCode: number,
     message: string,
-    options?: { code?: string; details?: unknown }
+    options?: { code?: string; details?: unknown },
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.statusCode = statusCode;
     this.code = options?.code;
     this.details = options?.details;

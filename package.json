@@ -9,6 +9,7 @@
     "start": "tsc && node dist/index.js",
     "dev": "tsx --watch src/index.ts",
     "lint": "eslint . --ext .ts",
+    "format": "prettier --write .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -31,6 +32,7 @@
     "@types/node": "^25.9.1",
     "eslint": "^10.4.0",
     "globals": "^17.6.0",
+    "prettier": "3.8.3",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.4"
