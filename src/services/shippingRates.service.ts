@@ -1,7 +1,17 @@
-import { Dimensions, ServicePreference, StdShippingRatesResBody } from "../types";
+import {
+  Dimensions,
+  ServicePreference,
+  StdShippingRatesResBody,
+} from "../types";
 
-const getShippingRates = async (origin: string, destination: string, package_type: string, dimensions: Dimensions, weight: number, service_preference?: ServicePreference) => {
-
+const getShippingRates = async (
+  origin: string,
+  destination: string,
+  package_type: string,
+  dimensions: Dimensions,
+  weight: number,
+  service_preference?: ServicePreference,
+) => {
   // const shippingRates = await shippingRatesRepository.getShippingRates(origin, destination, package_type, dimensions, weight, service_preference);
   const shippingRates: StdShippingRatesResBody[] = [
     {
