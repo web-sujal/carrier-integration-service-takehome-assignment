@@ -1,5 +1,6 @@
 import { z } from "zod";
 import dotenv from "dotenv";
+import { SHIPPING_PROVIDERS } from "../utils/constants";
 
 dotenv.config();
 
@@ -10,6 +11,10 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(8080),
 
   CORS_ORIGINS: z.string().optional(),
+
+  SHIPPING_PROVIDERS: z
+    .array(z.enum(Object.values(SHIPPING_PROVIDERS) as [string, ...string[]]))
+    .default([SHIPPING_PROVIDERS.UPS]),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -35,6 +40,9 @@ export const config = {
           .map((s) => s.trim())
           .filter(Boolean)
       : [],
+  },
+  shipping: {
+    providers: env.SHIPPING_PROVIDERS,
   },
 } as const;
 

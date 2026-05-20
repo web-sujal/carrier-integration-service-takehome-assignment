@@ -6,3 +6,9 @@ export const SERVICE_PREFERENCES = {
   STANDARD: "standard",
   ECONOMY: "economy",
 } as const;
+
+export const SHIPPING_PROVIDERS = {
+  UPS: "ups",
+  FEDEX: "fedex",
+  USPS: "usps",
+} as const;

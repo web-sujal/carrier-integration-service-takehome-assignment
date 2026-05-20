@@ -35,7 +35,6 @@ export class UpsShippingProvider extends BaseShippingProvider {
     return `http://127.0.0.1:${config.server.port}/internal/stub/ups/shipping-rate`;
   }
 
-  /** Stub bearer; replace with UpsAuthManager-managed token when integrating real UPS. */
   protected getHeaders(): Promise<Record<string, string>> {
     return Promise.resolve({
       Accept: "application/json",
