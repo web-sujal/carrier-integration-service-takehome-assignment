@@ -1,30 +1,37 @@
+import { config } from "../../config/config";
 import { BaseShippingProvider } from "./providers/baseShippingProvider";
+import { UpsAuthManager } from "./providers/ups/upsAuthManager";
 import { UpsShippingProvider } from "./providers/ups/upsShippingProvider";
 
-import { config } from "../../config/config";
-import { SHIPPING_PROVIDERS } from "../../utils/constants";
-
 export class ShippingFactory {
+  private static _providers: BaseShippingProvider[] | null = null;
+
+  private constructor() {}
+
   public static createShippingProviders(): BaseShippingProvider[] {
-    const providers: BaseShippingProvider[] = [];
-
-    for (const provider of config.shipping.providers) {
-      if (provider === SHIPPING_PROVIDERS.UPS) {
-        // Instantiate the specific auth manager using env secrets
-        // const upsAuth = new UPSAuthManager(
-        //   process.env.UPS_CLIENT_ID,
-        //   process.env.UPS_SECRET
-        // );
-
-        // providers.push(new UpsShippingProvider(upsAuth));
-        providers.push(new UpsShippingProvider());
-      }
-
-      // if (provider === "fedex") {
-      //   providers.push(new FedexShippingProvider());
-      // }
+    // Return cached providers if they exist
+    if (this._providers !== null) {
+      return this._providers;
     }
 
-    return providers;
+    const providers: BaseShippingProvider[] = [];
+
+    if (config.shipping.ups.enabled) {
+      // Instantiate the specific auth manager using env secrets
+      const upsAuth = new UpsAuthManager(
+        config.shipping.ups.clientId,
+        config.shipping.ups.secret,
+      );
+
+      providers.push(new UpsShippingProvider(upsAuth));
+    }
+
+    // if (config.shipping.fedex.enabled) {
+    //   providers.push(new FedexShippingProvider());
+    // }
+
+    // Cache providers
+    this._providers = providers;
+    return this._providers;
   }
 }

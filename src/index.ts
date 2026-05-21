@@ -1,18 +1,22 @@
 import "dotenv/config";
 
-import express from "express";
 import cors from "cors";
+import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 
 import { config } from "./config/config";
 import { errorHandler } from "./middlewares/error.middleware";
-import { v1Router } from "./routes/v1";
 import { createUpsShippingRateStubRouter } from "./routes/stub/upsStub.route";
+import { v1Router } from "./routes/v1";
+import { ShippingFactory } from "./services/shipping/shippingFactory";
 import { sendData } from "./utils/apiSuccess";
 import { StatusCodes } from "./utils/constants";
 
 const app = express();
+
+export const availableShippingProviders =
+  ShippingFactory.createShippingProviders();
 
 app.use(helmet());
 

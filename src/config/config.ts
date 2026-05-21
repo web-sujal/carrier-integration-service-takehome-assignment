@@ -1,6 +1,5 @@
-import { z } from "zod";
 import dotenv from "dotenv";
-import { SHIPPING_PROVIDERS } from "../utils/constants";
+import { z } from "zod";
 
 dotenv.config();
 
@@ -12,9 +11,12 @@ const envSchema = z.object({
 
   CORS_ORIGINS: z.string().optional(),
 
-  SHIPPING_PROVIDERS: z
-    .array(z.enum(Object.values(SHIPPING_PROVIDERS) as [string, ...string[]]))
-    .default([SHIPPING_PROVIDERS.UPS]),
+  UPS_CLIENT_ID: z.string().default("mock-client-id"),
+  UPS_SECRET: z.string().default("mock-secret"),
+
+  UPS_ENABLED: z.boolean().default(true), // enabled by default for testing
+  FEDEX_ENABLED: z.boolean().default(false),
+  USPS_ENABLED: z.boolean().default(false),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -42,7 +44,17 @@ export const config = {
       : [],
   },
   shipping: {
-    providers: env.SHIPPING_PROVIDERS,
+    ups: {
+      clientId: env.UPS_CLIENT_ID,
+      secret: env.UPS_SECRET,
+      enabled: env.UPS_ENABLED,
+    },
+    fedex: {
+      enabled: env.FEDEX_ENABLED,
+    },
+    usps: {
+      enabled: env.USPS_ENABLED,
+    },
   },
 } as const;
 
