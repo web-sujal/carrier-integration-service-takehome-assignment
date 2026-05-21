@@ -2,43 +2,43 @@
 
 Production-oriented TypeScript service that wraps carrier APIs behind a normalized internal contract.
 
-Currently implements UPS Rating integration (stubbed) while being designed for future extensibility across additional carriers (FedEx, USPS, DHL) without modifying orchestration logic.
+Currently only UPS rating flow is implemented (stubbed), but architecture was kept extensible so more providers like FedEx / USPS / DHL can be added later without rewriting the orchestration logic.
 
 ---
 
 ## Features
 
-- UPS rate shopping integration (stubbed)
-- OAuth token acquisition, reuse, and refresh
+- UPS shipping rate integration (stubbed internally)
+- OAuth token handling (fetch, cache, refresh on expiry)
 - Retry handling with exponential backoff + jitter
-- Rate-limit (`429`) and transient `5xx` retry support
-- Strong TypeScript typing
+- Retry support for timeout / transient `5xx` / `429`
 - Zod runtime validation
-- Structured API error handling
-- Extensible provider-based architecture
-- Integration-testable design
+- Structured API error responses
+- Strong TypeScript types
+- Integration-test friendly architecture
 
 ---
 
-## Architecture
+## Flow
 
 ```txt
 Client
-→ Express Route
-→ Validation Middleware
-→ ShippingManager
-→ ShippingProvider(s)
-→ Carrier API / Stub
+  → Express Route
+    → Validation Middleware
+      → ShippingManager
+        → ShippingProvider(s)
+          → Carrier API / Stub
 ```
 
-### Key Design Decisions
+---
 
-- `BaseShippingProvider` owns the shared request lifecycle and transport resilience.
-- Carrier providers only implement provider-specific mapping/auth logic.
-- `ShippingManager` orchestrates providers without knowing implementation details.
-- `UpsAuthManager` isolates OAuth lifecycle handling.
-- Internal normalized contracts prevent leaking UPS-specific payloads to callers.
-- Retry/backoff logic is centralized to avoid duplication across providers.
+## Some Design Decisions
+
+- `BaseShippingProvider` owns the shared request lifecycle and transport resilience logic.
+- Carrier providers only implement provider-specific logic like payload mapping, headers, auth handling etc.
+- `ShippingManager` works on abstractions instead of concrete providers.
+- `UpsAuthManager` handles token lifecycle separately from transport logic.
+- External UPS payloads are transformed into normalized internal contracts before returning to clients.
 
 ---
 
@@ -92,22 +92,48 @@ curl -X POST http://localhost:8080/api/v1/shipping-rates \
 
 ## Testing
 
-Integration tests validate:
+Integration tests run against the local Express app. Happy-path shipping quotes use the in-app UPS rating stub (`/internal/stub/ups`); token behavior is covered in `upsAuth.integration.test.ts` with spies and, for the HTTP 401 path, mocked `axios.post` rating responses (no live UPS OAuth calls).
 
-- request payload construction
-- response normalization
-- OAuth token reuse/refresh
-- timeout + retry behavior
-- structured error handling
-- malformed provider responses
+Current test coverage includes:
 
-All tests use stubbed UPS responses and do not require live UPS credentials.
+- request validation (invalid payloads)
+- successful quotes and normalized fields from the stubbed rating response
+- errors when no shipping providers are configured
+- OAuth token caching, refresh after HTTP 401, and refresh when the cached token is past the expiry skew
+
+Run tests:
+
+```bash
+pnpm test
+```
+
+---
+
+## Project Structure
+
+```txt
+src/
+├── controllers/
+├── routes/
+├── services/
+│   └── shipping/
+│       ├── providers/
+│       ├── shippingFactory.ts
+│       └── shippingManager.ts
+├── utils/
+├── validations/
+└── types/
+
+tests/
+├── integration/
+├── unit/
+```
 
 ---
 
 ## Future Improvements
 
-- additional carrier integrations
+- add more carrier providers
 - structured logging
 - metrics/tracing
 - Docker support
