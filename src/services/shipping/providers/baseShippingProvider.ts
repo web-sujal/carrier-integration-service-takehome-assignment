@@ -1,3 +1,4 @@
+import axios from "axios";
 import { ZodType } from "zod";
 
 import {
@@ -16,8 +17,7 @@ export abstract class BaseShippingProvider {
 
       const payload = this.transformPayload(validData);
 
-      const url = this.getUrl();
-      const res = await this.makeHttpCall(url, payload);
+      const res = await this.makeHttpCall(payload);
 
       return this.transformResponse(res);
     } catch (err) {
@@ -40,12 +40,69 @@ export abstract class BaseShippingProvider {
 
   protected abstract getUrl(): string;
 
-  /** Build headers for the outbound request (e.g. Bearer, content-type). */
   protected abstract getHeaders(): Promise<Record<string, string> | undefined>;
 
-  /** Perform carrier HTTP exchange; callers should use axios + normalize failures per carrier in {@link normalizeError}. */
-  protected abstract makeHttpCall(
-    url: string,
-    payload: unknown,
-  ): Promise<unknown>;
+  protected async makeHttpCall(payload: unknown): Promise<unknown> {
+    return this.executeWithRetry(async () => {
+      const url = this.getUrl();
+      const headers = await this.getHeaders();
+
+      const { data } = await axios.post(url, payload, {
+        headers,
+        timeout: 5000,
+      });
+
+      return data;
+    });
+  }
+
+  /** Execute an operation with retry logic. */
+  private async executeWithRetry<T>(operation: () => Promise<T>): Promise<T> {
+    const MAX_ATTEMPTS = 3;
+    const BASE_DELAY_MS = 2000;
+
+    for (let attempt = 0; attempt <= MAX_ATTEMPTS; attempt++) {
+      try {
+        return await operation();
+      } catch (err: any) {
+        const status = err?.response?.status;
+
+        const isTimeout = err?.code === "ECONNABORTED";
+
+        const isRetryable5xx = [500, 502, 503, 504].includes(status);
+
+        const isRateLimited = status === 429;
+
+        const shouldRetry = isTimeout || isRetryable5xx || isRateLimited;
+
+        if (!shouldRetry || attempt === MAX_ATTEMPTS) {
+          throw err;
+        }
+
+        let delayMs: number;
+
+        // Respect Retry-After header if present
+        const retryAfter = err?.response?.headers?.["retry-after"];
+
+        if (retryAfter) {
+          delayMs = Number(retryAfter) * 1000;
+        } else {
+          // exponential backoff
+          delayMs = BASE_DELAY_MS * Math.pow(2, attempt);
+        }
+
+        // jitter: -500ms to +500ms
+        const jitter = Math.floor(Math.random() * 1000) - 500;
+
+        delayMs += jitter;
+
+        delayMs = Math.max(delayMs, 0);
+
+        // sleep
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+
+    throw new Error("Unreachable retry state");
+  }
 }

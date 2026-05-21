@@ -52,30 +52,16 @@ export class UpsShippingProvider extends BaseShippingProvider {
     return normalizeUpsProviderError(error);
   }
 
-  /** POST rating request; refreshes Bearer once after 401 via {@link UpsAuthManager}. */
-  protected async makeHttpCall(
-    url: string,
-    payload: unknown,
-  ): Promise<unknown> {
-    const fetchRates = async () => {
-      const headers = await this.getHeaders();
-      const { data } = await axios.post(url, payload, { headers });
-      return data;
-    };
-
+  protected override async makeHttpCall(payload: unknown): Promise<unknown> {
     try {
-      return await fetchRates();
-    } catch (err: unknown) {
+      return await super.makeHttpCall(payload);
+    } catch (err) {
       if (
         axios.isAxiosError(err) &&
         err.response?.status === StatusCodes.UNAUTHORIZED
       ) {
         this._authManager.invalidateCachedToken();
-        try {
-          return await fetchRates();
-        } catch (retryErr: unknown) {
-          throw this.normalizeError(retryErr);
-        }
+        return await super.makeHttpCall(payload);
       }
 
       throw this.normalizeError(err);
