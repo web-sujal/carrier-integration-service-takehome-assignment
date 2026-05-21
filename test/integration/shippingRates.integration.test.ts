@@ -9,22 +9,21 @@ import {
 } from "../../src/shippingRegistry.js";
 import { ShippingManager } from "../../src/services/shipping/shippingManager.js";
 
+export const validPayload = {
+  origin: "123 Main St, Baltimore MD",
+  destination: "456 Elm St, Atlanta GA",
+  package_type: "box",
+  dimensions: { length: 10, width: 8, height: 6 },
+  weight: 5,
+  service_preference: "standard",
+};
+
 describe("Shipping Rates Integration Test", () => {
   it("should return shipping rates", async () => {
-    // Arrange
-    const payload = {
-      origin: "123 Main St, Baltimore MD",
-      destination: "456 Elm St, Atlanta GA",
-      package_type: "box",
-      dimensions: { length: 10, width: 8, height: 6 },
-      weight: 5,
-      service_preference: "standard",
-    };
+    const res = await request(app)
+      .post("/api/v1/shipping-rates")
+      .send(validPayload);
 
-    // Act
-    const res = await request(app).post("/api/v1/shipping-rates").send(payload);
-
-    // Assert
     expect(res.status).toBe(StatusCodes.OK);
     expect(res.body).toEqual({
       data: [
@@ -62,18 +61,9 @@ describe("Shipping Rates Integration Test", () => {
     it("should return 400 when no shipping providers are available", async () => {
       replaceShippingManagerForTests(new ShippingManager([]));
 
-      const payload = {
-        origin: "123 Main St, Baltimore MD",
-        destination: "456 Elm St, Atlanta GA",
-        package_type: "box",
-        dimensions: { length: 10, width: 8, height: 6 },
-        weight: 5,
-        service_preference: "standard",
-      };
-
       const res = await request(app)
         .post("/api/v1/shipping-rates")
-        .send(payload);
+        .send(validPayload);
 
       expect(res.status).toBe(StatusCodes.BAD_REQUEST);
       expect(res.body.error.message).toEqual("No shipping providers available");
