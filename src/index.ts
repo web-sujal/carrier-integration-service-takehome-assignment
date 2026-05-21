@@ -10,6 +10,7 @@ import { errorHandler } from "./middlewares/error.middleware";
 import { createUpsShippingRateStubRouter } from "./routes/stub/upsStub.route";
 import { v1Router } from "./routes/v1";
 import { ShippingFactory } from "./services/shipping/shippingFactory";
+import { ShippingManager } from "./services/shipping/shippingManager";
 import { sendData } from "./utils/apiSuccess";
 import { StatusCodes } from "./utils/constants";
 
@@ -17,6 +18,7 @@ const app = express();
 
 export const availableShippingProviders =
   ShippingFactory.createShippingProviders();
+export const shippingManager = new ShippingManager(availableShippingProviders);
 
 app.use(helmet());
 
