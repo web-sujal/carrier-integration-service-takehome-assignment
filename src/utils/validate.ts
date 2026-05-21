@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { ZodError, ZodType } from "zod";
 
-import { ApiError } from "./apiError";
-import { StatusCodes } from "./constants";
+import { ApiError } from "./apiError.js";
+import { StatusCodes } from "./constants.js";
 
 export function validate(schema: ZodType) {
   return (req: Request, _res: Response, next: NextFunction): void => {

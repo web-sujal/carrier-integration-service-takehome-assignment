@@ -1,5 +1,5 @@
-import { ApiError } from "../../../../utils/apiError";
-import { StatusCodes } from "../../../../utils/constants";
+import { ApiError } from "../../../../utils/apiError.js";
+import { StatusCodes } from "../../../../utils/constants.js";
 
 export class UpsAuthManager {
   private _accessToken: string | null = null;

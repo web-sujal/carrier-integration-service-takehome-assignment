@@ -1,1 +1,1 @@
-export { shippingRatesService } from "./shippingRates.service";
+export { shippingRatesService } from "./shippingRates.service.js";

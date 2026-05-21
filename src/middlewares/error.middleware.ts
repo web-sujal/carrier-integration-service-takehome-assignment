@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
-import { ApiError, ApiErrorBody } from "../utils/apiError";
-import { StatusCodes } from "../utils/constants";
+import { ApiError, ApiErrorBody } from "../utils/apiError.js";
+import { StatusCodes } from "../utils/constants.js";
 
 export function errorHandler(
   err: unknown,

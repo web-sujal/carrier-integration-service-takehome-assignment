@@ -1,5 +1,5 @@
 import { Router } from "express";
-import shippingRatesRouter from "./shippingRates.route";
+import shippingRatesRouter from "./shippingRates.route.js";
 
 export const v1Router = Router();
 

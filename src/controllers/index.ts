@@ -1,1 +1,1 @@
-export * as shippingRatesController from "./shippingRates.controller";
+export * as shippingRatesController from "./shippingRates.controller.js";

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 
-import { shippingManager } from "../shippingRegistry";
-import type { StdShippingRatesReqBody } from "../types";
-import { sendData } from "../utils/apiSuccess";
-import { StatusCodes } from "../utils/constants";
+import { shippingManager } from "../shippingRegistry.js";
+import type { StdShippingRatesReqBody } from "../types/index.js";
+import { sendData } from "../utils/apiSuccess.js";
+import { StatusCodes } from "../utils/constants.js";
 
 export const getShippingRates = async (
   req: Request<{}, {}, StdShippingRatesReqBody>,

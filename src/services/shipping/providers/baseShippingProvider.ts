@@ -3,8 +3,8 @@ import { ZodType } from "zod";
 import {
   StdShippingRatesReqBody,
   StdShippingRatesResBody,
-} from "../../../types";
-import { ApiError } from "../../../utils/apiError";
+} from "../../../types/index.js";
+import { ApiError } from "../../../utils/apiError.js";
 
 export abstract class BaseShippingProvider {
   // 1. THE TEMPLATE METHOD

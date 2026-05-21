@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import { shippingRatesController } from "../../controllers";
-import { asyncHandler } from "../../utils/asyncHandler";
-import { validate } from "../../utils/validate";
-import { stdShippingRatesReqBodySchema } from "../../validations";
+import { shippingRatesController } from "../../controllers/index.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+import { validate } from "../../utils/validate.js";
+import { stdShippingRatesReqBodySchema } from "../../validations/index.js";
 
 const router = Router();
 

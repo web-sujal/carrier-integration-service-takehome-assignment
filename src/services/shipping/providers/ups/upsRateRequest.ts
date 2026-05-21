@@ -1,6 +1,9 @@
-import type { StdShippingRatesReqBody } from "../../../../validations";
-import { SERVICE_PREFERENCES } from "../../../../utils/constants";
-import type { UpsRatedAddress, UpsRatingRequestPayload } from "./upsRateRequest.types";
+import type { StdShippingRatesReqBody } from "../../../../validations/index.js";
+import { SERVICE_PREFERENCES } from "../../../../utils/constants.js";
+import type {
+  UpsRatedAddress,
+  UpsRatingRequestPayload,
+} from "./upsRateRequest.types.js";
 
 /**
  * Build the UPS Rating API request body (`RateRequest` root) from our standard quote DTO.
@@ -97,7 +100,9 @@ function stubAddress(raw: string, roleLabel: string): UpsRatedAddress {
   };
 }
 
-function upsServiceFromPreference(pref: StdShippingRatesReqBody["service_preference"]): {
+function upsServiceFromPreference(
+  pref: StdShippingRatesReqBody["service_preference"],
+): {
   Code: string;
   Description: string;
 } {

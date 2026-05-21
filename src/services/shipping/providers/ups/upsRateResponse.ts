@@ -1,11 +1,11 @@
-import type { StdShippingRatesResBody } from "../../../../validations";
-import { ApiError } from "../../../../utils/apiError";
-import { StatusCodes } from "../../../../utils/constants";
+import type { StdShippingRatesResBody } from "../../../../validations/index.js";
+import { ApiError } from "../../../../utils/apiError.js";
+import { StatusCodes } from "../../../../utils/constants.js";
 import type {
   UpsMonetaryCharges,
   UpsRateResponseEnvelope,
   UpsRatedShipment,
-} from "./upsRateResponse.types";
+} from "./upsRateResponse.types.js";
 
 const UPS_PROVIDER_NAME = "UPS";
 
@@ -20,9 +20,13 @@ export function mapUpsRatingResponseToStd(
   raw: unknown,
 ): StdShippingRatesResBody {
   if (!raw || typeof raw !== "object") {
-    throw new ApiError(StatusCodes.BAD_GATEWAY, "UPS rating response is empty", {
-      code: "UPS_EMPTY_RESPONSE",
-    });
+    throw new ApiError(
+      StatusCodes.BAD_GATEWAY,
+      "UPS rating response is empty",
+      {
+        code: "UPS_EMPTY_RESPONSE",
+      },
+    );
   }
 
   const body = raw as UpsRateResponseEnvelope;
@@ -35,11 +39,9 @@ export function mapUpsRatingResponseToStd(
     );
   }
 
-  const statusCode =
-    rateResponse.Response?.ResponseStatus?.Code?.trim();
+  const statusCode = rateResponse.Response?.ResponseStatus?.Code?.trim();
 
-  const description =
-    rateResponse.Response?.ResponseStatus?.Description;
+  const description = rateResponse.Response?.ResponseStatus?.Description;
 
   if (
     statusCode !== undefined &&
@@ -74,8 +76,7 @@ export function mapUpsRatingResponseToStd(
     coerceCurrency(charges?.CurrencyCode) ??
     coerceCurrency(first.TransportationCharges?.CurrencyCode);
 
-  const estimatedDeliveryDays =
-    deriveEstimatedDeliveryDays(first) ?? 1;
+  const estimatedDeliveryDays = deriveEstimatedDeliveryDays(first) ?? 1;
 
   return {
     rate,
@@ -94,7 +95,9 @@ function normalizeRatedShipments(
   return Array.isArray(raw) ? raw : [raw];
 }
 
-function primaryCharges(shipment: UpsRatedShipment): UpsMonetaryCharges | undefined {
+function primaryCharges(
+  shipment: UpsRatedShipment,
+): UpsMonetaryCharges | undefined {
   const total = shipment.TotalCharges;
   const hasTotal =
     total?.MonetaryValue != null && String(total.MonetaryValue).trim() !== "";
@@ -116,16 +119,11 @@ function deriveEstimatedDeliveryDays(
   );
 }
 
-function parsePositiveAmount(
-  raw: string | undefined,
-  ctx: string,
-): number {
+function parsePositiveAmount(raw: string | undefined, ctx: string): number {
   if (raw == null || raw === "") {
-    throw new ApiError(
-      StatusCodes.BAD_GATEWAY,
-      `${ctx} is missing`,
-      { code: "UPS_MISSING_AMOUNT" },
-    );
+    throw new ApiError(StatusCodes.BAD_GATEWAY, `${ctx} is missing`, {
+      code: "UPS_MISSING_AMOUNT",
+    });
   }
 
   const n = Number.parseFloat(raw);
@@ -161,5 +159,3 @@ function coercePositiveOptionalInt(
 
   return n;
 }
-
-

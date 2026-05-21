@@ -3,12 +3,12 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 
-import { config } from "./config/config";
-import { errorHandler } from "./middlewares/error.middleware";
-import { createUpsShippingRateStubRouter } from "./routes/stub/upsStub.route";
-import { v1Router } from "./routes/v1";
-import { sendData } from "./utils/apiSuccess";
-import { StatusCodes } from "./utils/constants";
+import { config } from "./config/config.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
+import { createUpsShippingRateStubRouter } from "./routes/stub/upsStub.route.js";
+import { v1Router } from "./routes/v1/index.js";
+import { sendData } from "./utils/apiSuccess.js";
+import { StatusCodes } from "./utils/constants.js";
 
 /**
  * Single Express application instance — wired with middleware + routes.

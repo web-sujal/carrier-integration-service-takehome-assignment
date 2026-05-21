@@ -2,7 +2,7 @@ import {
   Dimensions,
   ServicePreference,
   StdShippingRatesResBody,
-} from "../types";
+} from "../types/index.js";
 
 const getShippingRates = async (
   origin: string,

@@ -1,10 +1,10 @@
-import { ApiError } from "../../utils/apiError";
-import { StatusCodes } from "../../utils/constants";
+import { ApiError } from "../../utils/apiError.js";
+import { StatusCodes } from "../../utils/constants.js";
 import {
   StdShippingRatesReqBody,
   StdShippingRatesResBody,
-} from "../../validations";
-import { BaseShippingProvider } from "./providers/baseShippingProvider";
+} from "../../validations/index.js";
+import { BaseShippingProvider } from "./providers/baseShippingProvider.js";
 
 export class ShippingManager {
   constructor(private readonly _shippingProviders: BaseShippingProvider[]) {}

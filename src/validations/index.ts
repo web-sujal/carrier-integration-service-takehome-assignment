@@ -3,4 +3,4 @@ export {
   stdShippingRatesResBodySchema,
   type StdShippingRatesReqBody,
   type StdShippingRatesResBody,
-} from "./shippingRates";
+} from "./shippingRates.js";

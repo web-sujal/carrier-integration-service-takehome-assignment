@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import type { PackageType } from "../types";
-import { SERVICE_PREFERENCES } from "../utils/constants";
+import type { PackageType } from "../types/index.js";
+import { SERVICE_PREFERENCES } from "../utils/constants.js";
 
 export const stdShippingRatesReqBodySchema = z.object({
   origin: z.string().min(1, "Origin is required"),

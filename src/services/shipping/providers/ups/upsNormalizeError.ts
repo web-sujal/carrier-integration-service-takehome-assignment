@@ -1,8 +1,8 @@
 import axios, { type AxiosError } from "axios";
 import { ZodError } from "zod";
 
-import { ApiError } from "../../../../utils/apiError";
-import { StatusCodes } from "../../../../utils/constants";
+import { ApiError } from "../../../../utils/apiError.js";
+import { StatusCodes } from "../../../../utils/constants.js";
 
 /**
  * Normalize UPS provider failures (Zod / Axios carrier payloads / unknown throws) into an {@link ApiError}.
@@ -100,9 +100,7 @@ function normalizeUpsAxiosCarrierError(err: AxiosError): ApiError {
   const fallbackMessage =
     typeof data === "string" && data.trim().length > 0
       ? data.trim().slice(0, 512)
-      : err.response?.statusText?.trim() ||
-        err.message ||
-        "UPS request failed";
+      : err.response?.statusText?.trim() || err.message || "UPS request failed";
 
   return new ApiError(httpStatus, fallbackMessage, {
     code: "UPS_HTTP_ERROR",

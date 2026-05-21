@@ -1,6 +1,6 @@
 import type { Response } from "express";
 
-import { StatusCodes } from "./constants";
+import { StatusCodes } from "./constants.js";
 
 /** JSON body shape for successful responses: always `{ data: ... }`. */
 export type ApiSuccessBody<T = unknown> = { data: T };

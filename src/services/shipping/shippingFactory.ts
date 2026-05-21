@@ -1,7 +1,7 @@
-import { config } from "../../config/config";
-import { BaseShippingProvider } from "./providers/baseShippingProvider";
-import { UpsAuthManager } from "./providers/ups/upsAuthManager";
-import { UpsShippingProvider } from "./providers/ups/upsShippingProvider";
+import { config } from "../../config/config.js";
+import { BaseShippingProvider } from "./providers/baseShippingProvider.js";
+import { UpsAuthManager } from "./providers/ups/upsAuthManager.js";
+import { UpsShippingProvider } from "./providers/ups/upsShippingProvider.js";
 
 export class ShippingFactory {
   private static _providers: BaseShippingProvider[] | null = null;

@@ -1,20 +1,20 @@
 import axios from "axios";
 import { ZodType } from "zod";
 
-import { config } from "../../../../config/config";
-import { ApiError } from "../../../../utils/apiError";
-import { StatusCodes } from "../../../../utils/constants";
+import { config } from "../../../../config/config.js";
+import { ApiError } from "../../../../utils/apiError.js";
+import { StatusCodes } from "../../../../utils/constants.js";
 import {
   StdShippingRatesReqBody,
   stdShippingRatesReqBodySchema,
   StdShippingRatesResBody,
-} from "../../../../validations";
-import { BaseShippingProvider } from "../baseShippingProvider";
-import { UpsAuthManager } from "./upsAuthManager";
-import { normalizeUpsProviderError } from "./upsNormalizeError";
-import { buildUpsRatingRequest } from "./upsRateRequest";
-import type { UpsRatingRequestPayload } from "./upsRateRequest.types";
-import { mapUpsRatingResponseToStd } from "./upsRateResponse";
+} from "../../../../validations/index.js";
+import { BaseShippingProvider } from "../baseShippingProvider.js";
+import { UpsAuthManager } from "./upsAuthManager.js";
+import { normalizeUpsProviderError } from "./upsNormalizeError.js";
+import { buildUpsRatingRequest } from "./upsRateRequest.js";
+import type { UpsRatingRequestPayload } from "./upsRateRequest.types.js";
+import { mapUpsRatingResponseToStd } from "./upsRateResponse.js";
 
 export class UpsShippingProvider extends BaseShippingProvider {
   constructor(private readonly _authManager: UpsAuthManager) {
