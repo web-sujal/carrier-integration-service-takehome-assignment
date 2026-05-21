@@ -1,7 +1,9 @@
+import axios from "axios";
 import { ZodType } from "zod";
 
 import { config } from "../../../../config/config";
 import { ApiError } from "../../../../utils/apiError";
+import { StatusCodes } from "../../../../utils/constants";
 import {
   StdShippingRatesReqBody,
   stdShippingRatesReqBodySchema,
@@ -36,14 +38,47 @@ export class UpsShippingProvider extends BaseShippingProvider {
     return `http://127.0.0.1:${config.server.port}/internal/stub/ups/shipping-rate`;
   }
 
-  protected getHeaders(): Promise<Record<string, string>> {
-    return Promise.resolve({
+  protected async getHeaders(): Promise<Record<string, string>> {
+    const accessToken = await this._authManager.getValidAccessToken();
+
+    return {
       Accept: "application/json",
       "Content-Type": "application/json",
-    });
+      Authorization: `Bearer ${accessToken}`,
+    };
   }
 
   protected normalizeError(error: unknown): ApiError {
     return normalizeUpsProviderError(error);
+  }
+
+  /** POST rating request; refreshes Bearer once after 401 via {@link UpsAuthManager}. */
+  protected async makeHttpCall(
+    url: string,
+    payload: unknown,
+  ): Promise<unknown> {
+    const fetchRates = async () => {
+      const headers = await this.getHeaders();
+      const { data } = await axios.post(url, payload, { headers });
+      return data;
+    };
+
+    try {
+      return await fetchRates();
+    } catch (err: unknown) {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.status === StatusCodes.UNAUTHORIZED
+      ) {
+        this._authManager.invalidateCachedToken();
+        try {
+          return await fetchRates();
+        } catch (retryErr: unknown) {
+          throw this.normalizeError(retryErr);
+        }
+      }
+
+      throw this.normalizeError(err);
+    }
   }
 }
