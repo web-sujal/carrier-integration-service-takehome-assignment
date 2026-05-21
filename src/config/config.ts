@@ -3,6 +3,12 @@ import { z } from "zod";
 
 dotenv.config();
 
+const booleanString = z
+  .string()
+  .toLowerCase()
+  .transform((val) => val === "true" || val === "1")
+  .default(false);
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
@@ -14,9 +20,9 @@ const envSchema = z.object({
   UPS_CLIENT_ID: z.string().default("mock-client-id"),
   UPS_SECRET: z.string().default("mock-secret"),
 
-  UPS_ENABLED: z.boolean().default(true), // enabled by default for testing
-  FEDEX_ENABLED: z.boolean().default(false),
-  USPS_ENABLED: z.boolean().default(false),
+  UPS_ENABLED: booleanString,
+  FEDEX_ENABLED: booleanString,
+  USPS_ENABLED: booleanString,
 });
 
 const parsed = envSchema.safeParse(process.env);

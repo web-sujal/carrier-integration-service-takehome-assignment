@@ -34,7 +34,9 @@ export class ShippingManager {
       .filter((result) => result.status === "rejected")
       .map((result) => result.reason);
 
-    console.error("Failed quotes:", failedQuotes);
+    if (failedQuotes.length > 0) {
+      console.error("Failed quotes:", failedQuotes);
+    }
 
     return successfulQuotes;
   }
