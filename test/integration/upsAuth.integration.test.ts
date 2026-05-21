@@ -1,56 +1,91 @@
+import axios, { type InternalAxiosRequestConfig } from "axios";
 import { StatusCodes } from "http-status-codes";
-import request from "supertest";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { app } from "../../src/app.js";
-import {
-  replaceShippingManagerForTests,
-  restoreDefaultShippingManagerForTests,
-} from "../../src/shippingRegistry.js";
-import { ShippingManager } from "../../src/services/shipping/shippingManager.js";
+import { config } from "../../src/config/config.js";
+import { UpsAuthManager } from "../../src/services/shipping/providers/ups/upsAuthManager.js";
+import { UpsShippingProvider } from "../../src/services/shipping/providers/ups/upsShippingProvider.js";
+import type { StdShippingRatesReqBody } from "../../src/types/index.js";
 import { validPayload } from "./shippingRates.integration.test.js";
 
-describe("UPS Auth Integration Test", () => {
-  // Reuses cached token
-  it("should reuse cached token", async () => {
-    // Arrange
-    const res = await request(app)
-      .post("/api/v1/shipping-rates")
-      .send(validPayload);
+/** Same shape as `createUpsShippingRateStubRouter()` success payload; used as mocked `axios.post` body. */
+const upsRatingStubBody = {
+  RateResponse: {
+    Response: {
+      ResponseStatus: { Code: "1", Description: "Success" },
+    },
+    RatedShipment: [
+      {
+        TotalCharges: {
+          CurrencyCode: "USD",
+          MonetaryValue: "42.99",
+        },
+        GuaranteedDelivery: {
+          BusinessDaysInTransit: "3",
+        },
+      },
+    ],
+  },
+};
 
-    // Act
-    const res2 = await request(app)
-      .post("/api/v1/shipping-rates")
-      .send(validPayload);
+function makeUnauthorizedAxiosError() {
+  return {
+    message: "Request failed with status code 401",
+    name: "AxiosError",
+    isAxiosError: true,
+    response: { status: StatusCodes.UNAUTHORIZED },
+    config: {} as InternalAxiosRequestConfig,
+    toJSON: () => ({}),
+  };
+}
 
-    // Assert
+describe("UpsAuthManager token cache", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  // Refreshes token after 401
-  it("should refresh token after 401", async () => {
-    // Arrange
-    const payload = {
-      origin: "123 Main St, Baltimore MD",
-      destination: "456 Elm St, Atlanta GA",
-      package_type: "box",
-    };
+  function newUpsAuthManager() {
+    return new UpsAuthManager(
+      config.shipping.ups.clientId,
+      config.shipping.ups.secret,
+    );
+  }
 
-    // Act
+  it("reuses cached token (_getAccessToken once for two callers)", async () => {
+    const upsAuthManager = newUpsAuthManager();
+    const spy = vi.spyOn(upsAuthManager as UpsAuthInternals, "_getAccessToken");
 
-    // Assert
+    await upsAuthManager.getValidAccessToken();
+    await upsAuthManager.getValidAccessToken();
+
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  // refreshed after token expires
-  it("should refresh token after token expires", async () => {
-    // Arrange
-    const payload = {
-      origin: "123 Main St, Baltimore MD",
-      destination: "456 Elm St, Atlanta GA",
-      package_type: "box",
-    };
+  it("invalidates cached token after 401 and refetches token on retry", async () => {
+    const upsAuthManager = newUpsAuthManager();
+    const tokenSpy = vi.spyOn(
+      upsAuthManager as UpsAuthInternals,
+      "_getAccessToken",
+    );
 
-    // Act
+    vi.spyOn(axios, "post")
+      .mockRejectedValueOnce(makeUnauthorizedAxiosError())
+      .mockResolvedValueOnce({ data: upsRatingStubBody });
 
-    // Assert
+    const provider = new UpsShippingProvider(upsAuthManager);
+    const quote = await provider.getShippingRates(
+      validPayload as StdShippingRatesReqBody,
+    );
+
+    expect(quote.rate).toBeCloseTo(42.99);
+    expect(quote.provider_name).toBe("UPS");
+
+    expect(tokenSpy).toHaveBeenCalledTimes(2);
   });
+
+  it.todo("refreshes token after token expires");
 });
+
+type UpsAuthInternals = UpsAuthManager & {
+  _getAccessToken(): Promise<{ access_token: string; expires_in: number }>;
+};
