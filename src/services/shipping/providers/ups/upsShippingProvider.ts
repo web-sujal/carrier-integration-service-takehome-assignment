@@ -8,13 +8,14 @@ import {
   StdShippingRatesResBody,
 } from "../../../../validations";
 import { BaseShippingProvider } from "../baseShippingProvider";
+import { UpsAuthManager } from "./upsAuthManager";
 import { normalizeUpsProviderError } from "./upsNormalizeError";
 import { buildUpsRatingRequest } from "./upsRateRequest";
 import type { UpsRatingRequestPayload } from "./upsRateRequest.types";
 import { mapUpsRatingResponseToStd } from "./upsRateResponse";
 
 export class UpsShippingProvider extends BaseShippingProvider {
-  constructor() {
+  constructor(private readonly _authManager: UpsAuthManager) {
     super();
   }
 

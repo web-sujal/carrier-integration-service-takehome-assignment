@@ -1,31 +1,17 @@
 import { Request, Response } from "express";
 
+import { availableShippingProviders } from "..";
+import { ShippingManager } from "../services/shipping/shippingManager";
 import type { StdShippingRatesReqBody } from "../types";
 import { sendData } from "../utils/apiSuccess";
 import { StatusCodes } from "../utils/constants";
-import { shippingRatesService } from "../services";
 
 export const getShippingRates = async (
   req: Request<{}, {}, StdShippingRatesReqBody>,
   res: Response,
 ) => {
-  const {
-    origin,
-    destination,
-    package_type,
-    dimensions,
-    weight,
-    service_preference,
-  } = req.body;
-
-  const shippingRates = await shippingRatesService.getShippingRates(
-    origin,
-    destination,
-    package_type,
-    dimensions,
-    weight,
-    service_preference,
-  );
+  const shippingManager = new ShippingManager(availableShippingProviders);
+  const shippingRates = await shippingManager.getAllShippingRates(req.body);
 
   sendData(res, shippingRates, StatusCodes.OK);
   return;
