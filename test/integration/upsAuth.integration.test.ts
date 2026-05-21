@@ -39,6 +39,14 @@ function makeUnauthorizedAxiosError() {
   };
 }
 
+/** Shifts expiry so `UpsAuthManager` treats the cache as stale (outside the proactive refresh skew). */
+function expireUpsAuthCacheForTests(mgr: UpsAuthManager): void {
+  const internals = mgr as unknown as {
+    _accessTokenExpiresAt: Date | null;
+  };
+  internals._accessTokenExpiresAt = new Date(Date.now() - 1);
+}
+
 describe("UpsAuthManager token cache", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -83,7 +91,19 @@ describe("UpsAuthManager token cache", () => {
     expect(tokenSpy).toHaveBeenCalledTimes(2);
   });
 
-  it.todo("refreshes token after token expires");
+  it("refetches token once cached bearer is past expiry skew", async () => {
+    const upsAuthManager = newUpsAuthManager();
+    const tokenSpy = vi.spyOn(
+      upsAuthManager as UpsAuthInternals,
+      "_getAccessToken",
+    );
+
+    await upsAuthManager.getValidAccessToken();
+    expireUpsAuthCacheForTests(upsAuthManager);
+    await upsAuthManager.getValidAccessToken();
+
+    expect(tokenSpy).toHaveBeenCalledTimes(2);
+  });
 });
 
 type UpsAuthInternals = UpsAuthManager & {
