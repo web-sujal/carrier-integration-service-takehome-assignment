@@ -1,64 +1,7 @@
 import "dotenv/config";
 
-import cors from "cors";
-import express from "express";
-import helmet from "helmet";
-import morgan from "morgan";
-
+import { app } from "./app";
 import { config } from "./config/config";
-import { errorHandler } from "./middlewares/error.middleware";
-import { createUpsShippingRateStubRouter } from "./routes/stub/upsStub.route";
-import { v1Router } from "./routes/v1";
-import { ShippingFactory } from "./services/shipping/shippingFactory";
-import { ShippingManager } from "./services/shipping/shippingManager";
-import { sendData } from "./utils/apiSuccess";
-import { StatusCodes } from "./utils/constants";
-
-const app = express();
-
-export const availableShippingProviders =
-  ShippingFactory.createShippingProviders();
-export const shippingManager = new ShippingManager(availableShippingProviders);
-
-app.use(helmet());
-
-app.use(morgan(config.server.nodeEnv === "production" ? "combined" : "dev"));
-
-// CORS: allow explicit origins from CORS_ORIGINS, or "*" = allow all, or in dev with no env = allow all.
-const allowAllOrigins =
-  config.cors.origins.length === 0 ||
-  (config.cors.origins.length === 1 && config.cors.origins[0] === "*");
-
-const corsOrigin = allowAllOrigins
-  ? true
-  : config.cors.origins.map((o) => o.replace(/\/$/, "")); // strip trailing slash
-
-app.use(
-  cors({
-    origin: corsOrigin,
-    credentials: false,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
-
-app.use(express.json());
-
-app.get("/health", (_req, res) => {
-  return sendData(res, { status: "ok", message: "Server is running" });
-});
-
-// Handle favicon requests
-app.get("/favicon.ico", (_req, res) => {
-  return sendData(res, undefined, StatusCodes.NO_CONTENT);
-});
-
-app.use("/api/v1", v1Router);
-
-/** In-process UPS Rating mock; default target of `config.upsStub.rateUrl`. */
-app.use("/internal/stub/ups", createUpsShippingRateStubRouter());
-
-app.use(errorHandler);
 
 async function bootstrap() {
   app.listen(config.server.port, () => {
