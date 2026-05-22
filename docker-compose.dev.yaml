@@ -1,0 +1,16 @@
+services:
+  backend-server:
+    command: pnpm dev
+    develop:
+      watch:
+        - path: package.json
+          action: rebuild
+        - path: pnpm-lock.yaml
+          action: rebuild
+        - path: ./
+          target: /app
+          action: sync+restart
+
+  mongoDb:
+    ports:
+      - 27017:27017

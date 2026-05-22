@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import { config } from "./config/config.js";
+import { connectDb } from "./config/db.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { createUpsShippingRateStubRouter } from "./routes/stub/upsStub.route.js";
 import { v1Router } from "./routes/v1/index.js";
@@ -15,6 +16,8 @@ import { StatusCodes } from "./utils/constants.js";
  * Never call `listen()` here; `src/index.ts` boots HTTP. Integration tests import `app` alone.
  */
 export const app = express();
+
+await connectDb();
 
 app.use(helmet());
 
@@ -40,7 +43,10 @@ app.use(
 app.use(express.json());
 
 app.get("/health", (_req, res) => {
-  return sendData(res, { status: "ok", message: "Server is running" });
+  return sendData(res, {
+    status: "ok",
+    message: "Server is running",
+  });
 });
 
 app.get("/favicon.ico", (_req, res) => {

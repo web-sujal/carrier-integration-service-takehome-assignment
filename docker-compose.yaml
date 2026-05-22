@@ -1,0 +1,36 @@
+services:
+  backend-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: carrier-integration-service
+    env_file:
+      - .env.${ENV_MODE}
+    networks:
+      - carrier-integration-network
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongoDb
+
+  mongoDb:
+    image: mongo:6
+    container_name: carrier-integration-mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - carrier-integration-network
+    # MongoDB is not exposed to the host in production
+    # ports:
+    #   - 27017:27017
+    volumes:
+      - carrier-integration-data:/data/db
+
+networks:
+  carrier-integration-network:
+    driver: bridge
+
+volumes:
+  carrier-integration-data:
+    driver: local

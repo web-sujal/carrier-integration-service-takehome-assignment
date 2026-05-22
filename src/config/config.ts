@@ -15,6 +15,9 @@ const envSchema = z.object({
     .default("development"),
   PORT: z.coerce.number().default(8080),
 
+  MONGODB_URI: z.string().optional(),
+  DB_NAME: z.string().default("carrier-integration"),
+
   CORS_ORIGINS: z.string().optional(),
 
   UPS_CLIENT_ID: z.string().default("mock-client-id"),
@@ -41,6 +44,10 @@ export const config = {
   server: {
     port: env.PORT,
     nodeEnv: env.NODE_ENV,
+  },
+  db: {
+    mongodbUri: env.MONGODB_URI,
+    dbName: env.DB_NAME,
   },
   cors: {
     origins: env.CORS_ORIGINS
