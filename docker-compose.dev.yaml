@@ -1,5 +1,9 @@
 services:
   backend-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
     command: pnpm dev
     develop:
       watch:
